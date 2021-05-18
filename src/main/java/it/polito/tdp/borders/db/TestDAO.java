@@ -11,7 +11,15 @@ public class TestDAO {
 
 		BordersDAO dao = new BordersDAO();
 
-		System.out.println("Lista di tutte le nazioni:");
-		List<Country> countries = dao.loadAllCountries();
+//		System.out.println("Lista di tutte le nazioni:");
+//		List<Country> countries = dao.loadAllCountries();
+		
+		List<Border> borders = dao.getCountryPairs(2000);
+		for(Border b : borders) {
+			System.out.println(b.toString());
+		}
+		System.out.println("BORDER SIZE = "+borders.size());
+		
+		System.out.println(dao.getCountry("Austria").toString());
 	}
 }

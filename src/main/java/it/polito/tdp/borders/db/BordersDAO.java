@@ -37,8 +37,60 @@ public class BordersDAO {
 	}
 
 	public List<Border> getCountryPairs(int anno) {
-
-		System.out.println("TODO -- BordersDAO -- getCountryPairs(int anno)");
-		return new ArrayList<Border>();
+		String sql = "SELECT cc1.StateAbb, cc1.CCode, cc1.StateNme, cc2.StateAbb, cc2.CCode, cc2.StateNme "
+				+ "FROM contiguity c, country cc1, country cc2 "
+				+ "WHERE YEAR <= ? AND conttype = 1 AND "
+				+ "(c.state1no = cc1.CCode AND c.state2no = cc2.CCode)";
+		List<Border> result = new ArrayList<Border>();
+		
+		try {
+			
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, anno);
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				Country c1 = new Country(rs.getString(1), rs.getInt(2), rs.getString(3));
+				Country c2 = new Country(rs.getString(4), rs.getInt(5), rs.getString(6));
+				Border b = new Border(c1, c2);
+				if(b.getC2().getCCode() < b.getC1().getCCode()) {
+					result.add(b);
+				}
+			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore getCountryPairs");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+	
+	
+	public Country getCountry(String name) {
+		String sql = "SELECT StateAbb, CCode, StateNme "
+				+ "FROM country "
+				+ "WHERE StateNme = ? ";
+		Country c = null;
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, name);
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				c = new Country(rs.getString(1), rs.getInt(2), rs.getString(3));
+			}
+			conn.close();
+			return c;
+		}catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore getCountryPairs");
+			throw new RuntimeException("Error Connection Database");
+		}
+		
 	}
 }
